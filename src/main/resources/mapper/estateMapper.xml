@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.estate.dao.EstateMapper">
+<!-- 객체 별칭이 type  property가 vo 필드명   column이 DB이름-->
+	<resultMap type="estate" id="estateResultMap">
+		<id 	property="estateId" 				column="ESTATE_ID"/>
+		<result property="region" 					column="Region"/>
+		<result property="prefecture" 				column="Prefecture"/>
+		<result property="municipality" 			column="Municipality"/>
+		<result property="districtname" 			column="DistrictName"/>
+		<result property="neareststation" 			column="NearestStation"/>
+		<result property="timetoneareststation"		column="TimeToNearestStation"/>
+		<result property="tradeprice" 				column="TradePrice"/>
+		<result property="priceperunit" 			column="PricePerUnit"/>
+		<result property="floorplan" 				column="FloorPlan"/>
+		<result property="area" 					column="Area"/>
+		<result property="unitprice" 				column="UnitPrice"/>
+		<result property="landshape" 				column="LandShape"/>
+		<result property="frontage" 				column="Frontage"/>
+		<result property="address" 					column="address"/>
+		<result property="totalfloorarea" 			column="TotalFloorArea"/>
+		<result property="buildingyear" 			column="BuildingYear"/>
+		<result property="structure" 				column="Structure"/>
+		<result property="use" 						column="Use"/>
+		<result property="purpose" 					column="Purpose"/>
+		<result property="direction" 				column="Direction"/>
+		<result property="classification" 			column="Classification"/>
+		<result property="breadth" 					column="Breadth"/>
+		<result property="cityplanning" 			column="CityPlanning"/>
+		<result property="coverageratio" 			column="CoverageRatio"/>
+		<result property="floorarearatio" 			column="FloorAreaRatio"/>
+		<result property="period" 					column="Period"/>
+		<result property="renovation" 				column="Renovation"/>
+		<result property="remarks" 					column="Remarks"/>
+		<result property="delDate" 					column="estate_DEL_DATE"/>
+		<result property="estateName" 				column="ESTATE_NAME"/>
+		<result property="address" 				    column="ADDRESS"/>
+		<result property="estateX" 					column="ESTATE_X"/>
+		<result property="estateY" 					column="ESTATE_Y"/>
+		<result property="creDate" 					column="CRE_DATE"/>
+		<result property="baseRoomId" 				column="BASE_ROOM_ID"/>
+		<association property="municipalitycode"	column="MunicipalityCode_ID" javaType="com.real.fudousan.estate.vo.MunicipalityCode" resultMap="MunicipalityCodeResultMap"/>
+		<association property="transType" 			column="TRANS_TYPE_ID"       javaType="com.real.fudousan.estate.vo.TransType"        resultMap="transTypeResultMap"/>
+	</resultMap>
+	
+		<!-- associationdml property는 속하는 객체의 vo변수명이다. -->
+	
+	<resultMap type="transtype" id="transTypeResultMap">
+		<id 	property="transTypeId" column="TRANS_TYPE_ID"/>
+		<result property="transName"   column="TRANS_NAME"/>
+	</resultMap>
+
+	<resultMap type="municipalitycode" id="MunicipalityCodeResultMap">
+		<id 	property="municipalitycodeId" column="MunicipalityCode_ID"/>
+		<result property="codeName" 		  column="CODE_NAME"/>
+	</resultMap>
+<sql id="SELECT_ESTATE_SQL">
+	select
+			-- ESTATE
+			estate.ESTATE_ID 						ESTATE_ID
+			,estate.Region							Region		
+			,estate.Prefecture						Prefecture
+			,estate.Municipality					Municipality
+			,estate.DistrictName					DistrictName
+			,estate.NearestStation					NearestStation
+			,estate.TimeToNearestStation			TimeToNearestStation
+			,estate.TradePrice						TradePrice
+			,estate.PricePerUnit					PricePerUnit
+			,estate.FloorPlan						FloorPlan
+			,estate.Area							Area
+			,estate.UnitPrice						UnitPrice
+			,estate.LandShape						LandShape
+			,estate.Frontage						Frontage
+			,estate.TotalFloorArea					TotalFloorArea
+			,estate.BuildingYear					BuildingYear
+			,estate.Structure						Structure
+			,estate.Use								Use
+			,estate.Purpose							Purpose
+			,estate.Direction						Direction
+			,estate.Classification					Classification
+			,estate.Breadth							Breadth
+			,estate.CityPlanning					CityPlanning
+			,estate.CoverageRatio					CoverageRatio
+			,estate.FloorAreaRatio					FloorAreaRatio
+			,estate.Period							Period
+			,estate.Renovation						Renovation
+			,estate.Remarks							Remarks
+			,estate.DEL_DATE 						estate_DEL_DATE
+			,estate.ESTATE_NAME						ESTATE_NAME
+			,estate.ADDRESS							ADDRESS
+			,estate.ESTATE_X						ESTATE_X
+			,estate.ESTATE_Y						ESTATE_Y
+			,estate.CRE_DATE						CRE_DATE					
+			,estate.BASE_ROOM_ID					BASE_ROOM_ID
+			
+			-- municipalitycode
+			,municipalitycode.municipalitycode_id 	MunicipalityCode_ID
+			,municipalitycode.code_name				CODE_NAME
+			
+			-- trans_type
+			,trans_type.TRANS_TYPE_ID 				TRANS_TYPE_ID
+			,trans_type.TRANS_NAME					TRANS_NAME
+		from
+			ESTATE
+		join
+			MunicipalityCode
+		on
+			estate.MunicipalityCode_ID = municipalitycode.MunicipalityCode_ID
+		join
+			TRANS_TYPE
+		on
+			estate.TRANS_TYPE_ID = trans_type.TRANS_TYPE_ID
+</sql>
+
+<insert id="insertByIds" parameterType="estate">
+<selectKey resultType="int" keyProperty="estateId" order="AFTER">
+SELECT
+SEQ_ESTATE_ID.CURRVAL
+FROM DUAL
+</selectKey>
+
+insert into estate
+(	
+	ESTATE_ID
+	,TRANS_TYPE_ID
+<if test='region != null'>
+	,REGION
+</if>
+	,MunicipalityCode_ID
+<if test = 'prefecture != null'>
+	,PREFECTURE
+</if>
+<if test = 'municipality != null'>
+	,MUNICIPALITY
+</if>
+
+<if test = 'districtname != null'>
+	,DISTRICTNAME
+</if>
+
+<if test = 'address != null'>
+	,ADDRESS
+</if>
+<if test = 'neareststation != null'>
+	,NEARESTSTATION
+</if>
+<if test = 'timetoneareststation != null'>
+	,TIMETONEARESTSTATION
+</if>
+<if test ='tradeprice != null'>
+	,TRADEPRICE
+</if>
+<if test ='priceperunit != null'>
+	,PRICEPERUNIT
+</if>
+<if test = 'floorplan != null'>
+	,FLOORPLAN
+</if>
+<if test = 'area != null'>
+	,AREA
+</if>
+<if test = 'unitprice != null'>
+	,UNITPRICE
+</if>
+<if test ='landshape != null'>
+	,LANDSHAPE
+</if>
+<if test ='frontage != null'>
+	,FRONTAGE
+</if>
+<if test = 'totalfloorarea != null'>
+	,TOTALFLOORAREA
+</if>
+
+<if test = 'buildingyear != null'>
+	,BUILDINGYEAR
+</if>
+<if test = 'structure != null'>
+	,STRUCTURE
+</if>
+<if test = 'use != null'>
+	,USE
+</if>
+<if test = 'purpose != null'>
+	,PURPOSE
+</if>
+<if test = 'direction != null'>
+	,DIRECTION
+</if>
+<if test = 'classification != null'>
+	,CLASSIFICATION
+</if>
+<if test = 'breadth != null'>
+	,BREADTH
+</if>
+<if test = 'cityplanning != null'>
+	,CITYPLANNING
+</if>
+<if test ='coverageratio != null'>
+	,COVERAGERATIO</if>
+<if test = 'floorarearatio != null'>
+	,FLOORAREARATIO
+</if>
+<if test = 'period != null'>
+	,PERIOD
+</if>
+<if test = 'renovation != null'>
+	,RENOVATION
+</if>
+<if test = 'remarks != null'>
+	,REMARKS
+</if>
+
+<if test = 'delDate != null'>
+	,DEL_DATE
+</if>
+<if test='estateName != null'>
+	,ESTATE_NAME
+</if>
+<if test='estateX != null'>
+	,ESTATE_X
+</if>
+<if test='estateY != null'>
+	,ESTATE_Y
+</if>
+
+
+)
+VALUES
+(
+SEQ_ESTATE_ID.nextval
+,#{transType.transTypeId}
+<if test ='region != null'>
+,#{region}
+</if>
+,#{municipalitycode.municipalitycodeId}
+<if test ='prefecture != null'>
+,#{prefecture}
+</if>
+<if test ='municipality != null'>
+,#{municipality}
+</if>
+<if test='districtname != null'>
+,#{districtname}
+</if>
+<if test= 'address != null'>
+,#{address}
+</if>
+<if test='neareststation != null'>
+,#{neareststation}
+</if>
+<if test='timetoneareststation != null'>
+,#{timetoneareststation}
+</if>
+<if test='tradeprice != null'>
+,#{tradeprice}
+</if>
+<if test='priceperunit != null'>
+,#{priceperunit}
+</if>
+<if test ='floorplan != null'>
+,#{floorplan}</if>
+<if test='area != null'>
+,#{area}
+</if>
+<if test='unitprice != null'>
+,#{unitprice}
+</if>
+<if test='landshape != null'>
+,#{landshape}
+</if>
+<if test='frontage != null'>
+,#{frontage}
+</if>
+<if test='totalfloorarea != null'>
+,#{totalfloorarea}
+</if>
+<if test='buildingyear != null'>
+,#{buildingyear}
+</if>
+<if test ='structure != null'>
+,#{structure}
+</if>
+<if test ='use != null'>
+,#{use}
+</if>
+<if test ='purpose != null'>
+,#{purpose}
+</if>
+<if test ='direction != null'>
+,#{direction}
+</if>
+<if test ='classification != null'>
+,#{classification}
+</if>
+<if test ='breadth != null'>
+,#{breadth}
+</if>
+<if test ='cityplanning != null'>
+,#{cityplanning}
+</if>
+<if test='coverageratio != null'>
+,#{coverageratio}
+</if>
+<if test='floorarearatio != null'>
+,#{floorarearatio}
+</if>
+<if test='period != null'>
+,#{period}
+</if>
+<if test='renovation != null'>
+,#{renovation}
+</if>
+<if test='remarks != null'>
+,#{remarks}
+</if>
+<if test ='delDate != null'>
+,#{delDate}
+</if>
+<if test='estateName != null'>
+,#{estateName}
+</if>
+<if test='estateX != null'>
+,#{estateX}
+</if>
+<if test='estateY != null'>
+,#{estateY}
+</if>
+
+)
+
+</insert>
+
+
+<select id="select" parameterType="string" resultMap="estateResultMap">
+	<include refid="SELECT_ESTATE_SQL"></include>
+	WHERE
+	    estate_id IN (
+	        SELECT estate_id FROM entry WHERE agency_id = (
+	            SELECT agency_id FROM agency WHERE member_id = (
+	                SELECT member_id FROM member WHERE email = #{email}
+	                )
+	            )
+	        )
+	ORDER BY
+		estate_id ASC
+</select>
+
+
+<update id="updateByIds" parameterType="estate" >
+UPDATE ESTATE
+SET	
+	TRANS_TYPE_ID=#{transType.transTypeId}
+	,MunicipalityCode_ID=#{municipalitycode.municipalitycodeId}
+	,PREFECTURE=#{prefecture}
+	,MUNICIPALITY=#{municipality}
+	,DISTRICTNAME=#{districtname}
+	,ADDRESS=#{address}
+	,NEARESTSTATION=#{neareststation}
+	,TIMETONEARESTSTATION=#{timetoneareststation}
+	<!-- ,TRADEPRICE=#{tradeprice} -->
+	<!-- ,PRICEPERUNIT=#{priceperunit} -->
+	<!-- ,FLOORPLAN=#{floorplan} -->
+	<!-- ,AREA=#{area} -->
+	<!-- ,UNITPRICE=#{unitprice} -->
+	<!-- ,TOTALFLOORAREA=#{totalfloorarea} -->
+	<!-- ,LANDSHAPE=#{landshape} -->
+	,ESTATE_NAME=#{estateName}
+	,BUILDINGYEAR=#{buildingyear}
+	<!-- ,STRUCTURE=#{structure} -->
+	,USE=#{use}
+	,COVERAGERATIO=#{coverageratio}
+	,FLOORAREARATIO=#{floorarearatio}
+	
+	WHERE
+	 ESTATE_ID = #{estateId}
+
+</update>
+
+
+<delete id="deleteByIds" parameterType="int">
+delete 
+from ESTATE
+where estate_id = #{estateId}
+</delete>
+
+<select id="selectByIds" parameterType="java.util.Set" resultMap="estateResultMap">
+	<include refid="SELECT_ESTATE_SQL"></include>
+		where
+			room.MEMBER_ID IN <foreach collection="_parameter" item="id" open="(" separator=", " close=")">#{id}</foreach>
+	</select>
+	
+<insert id="insertTrans" parameterType="transtype">
+
+<selectKey resultType="int" keyProperty="estateId" order="AFTER">
+SELECT
+trans_type_id
+FROM DUAL
+</selectKey>
+
+INSERT INTO trans_type
+(
+	trans_type_id,
+	trans_name
+)
+VALUES
+(
+	#{transTypeId},
+	#{transName}
+)
+</insert>	
+	
+<insert id="insertMunicipalitycode" parameterType="municipalitycode">
+
+<selectKey resultType="int" keyProperty="estateId" order="AFTER">
+SELECT
+municipalitycode_id
+FROM DUAL
+</selectKey>
+
+
+INSERT INTO municipalitycode
+(
+	municipalitycode_id,
+	code_name
+)
+VALUES
+(
+	#{municipalitycodeId},
+	#{codeName}
+)
+
+
+</insert>	
+	
+	
+
+<select id="viewEstate" resultMap="estateResultMap">
+	<include refid="SELECT_ESTATE_SQL"></include>
+	WHERE
+		estate_id = #{0}
+</select>
+	
+
+<select id="selectEsatesLocation" resultMap="estateResultMap">
+	<include refid="SELECT_ESTATE_SQL"></include>
+
+</select>	
+	
+
+
+<update id="updateBaseRoomId">
+	UPDATE
+		estate
+	SET
+		base_room_id =#{1}
+	WHERE
+		estate_id = #{0}
+</update>
+	
+<select id="codecheck"  parameterType="int" resultType="string">
+select
+	CODE_NAME
+from	
+	MUNICIPALITYCODE
+where
+	MUNICIPALITYCODE_ID=#{municipalitycodeId}
+</select>	
+	
+</mapper>

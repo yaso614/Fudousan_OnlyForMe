@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.item.dao.ItemMapper">
+	<resultMap type="item" id="itemResultMap">
+		<id property="itemId" column="item_id"/>
+		<result property="itemName" column="item_name"/>
+		<result property="text" column="text"/>
+		<result property="fileDirectory" column="file_directory"/>
+		<result property="modelFileName" column="model_file_name"/>
+		<result property="itemScale" column="item_scale"/>
+		<result property="itemRotateX" column="item_rotate_x"/>
+		<result property="itemRotateY" column="item_rotate_y"/>
+		<result property="itemRotateZ" column="item_rotate_z"/>
+		<result property="itemX" column="item_x"/>
+		<result property="itemY" column="item_y"/>
+		<result property="itemZ" column="item_z"/>
+		<result property="itemPreview" column="item_preview"/>
+		<association property="itemType" column="item_type_id" javaType="com.real.fudousan.item.vo.ItemType" resultMap="itemTypeResultMap"/>
+		<collection property="refSiteSet" column="id" ofType="com.real.fudousan.item.vo.RefSite" resultMap="refSiteResultMap"/>
+	</resultMap>
+
+	<resultMap type="itemtype" id="itemTypeResultMap">
+		<id property="itemTypeId" column="item_type_id"/>
+		<result property="itemTypeName" column="item_type_name"/>
+	</resultMap>
+	
+	<resultMap type="refsite" id="refSiteResultMap">
+		<id property="id" column="id"/>
+		<result property="url" column="url"/>
+		<result property="creDate" column="cre_date"/>
+		<result property="text" column="ref_site_text"/>
+	</resultMap>
+	
+	<sql id="SELECT_ITEM_SQL">
+	
+		SELECT
+			item.item_id item_id
+			, item_name
+			, item.text text
+			, file_directory
+			, model_file_name
+			, item_scale
+			,item_rotate_x
+			,item_rotate_y
+			,item_rotate_z
+			,item_x
+			,item_y
+			,item_z
+			,item_preview
+			
+			-- item_type
+			, item.item_type_id item_type_id
+			, item_type_name
+			
+			-- ref_site
+			, id
+			, url
+			, cre_date
+			, ref_site.text ref_site_text
+		FROM
+			item
+		JOIN
+			item_type
+		ON
+			item.item_type_id = item_type.item_type_id
+		LEFT OUTER JOIN
+			ref_site
+		ON
+			item.item_id = ref_site.item_id
+	
+	</sql>
+	<select id="selectAll" resultMap="itemResultMap">
+		<include refid="SELECT_ITEM_SQL"></include>
+	</select>
+	
+	
+<!-- 수정중 -->
+	<select id="itemlist" parameterType="int" resultMap="itemResultMap">
+		<include refid="SELECT_ITEM_SQL"></include>
+			<if test="_parameter != 0">
+			WHERE
+					item.item_type_id = #{itemTypeId}
+			
+			</if>
+			
+				
+	</select>
+	
+	
+	
+	<select id="selectById" parameterType="int" resultMap="itemResultMap">
+		<include refid="SELECT_ITEM_SQL"></include>
+		WHERE
+			item.item_id = #{0}
+	</select>
+	
+	<select id="selectByName" parameterType="String" resultMap="itemResultMap">
+		<include refid="SELECT_ITEM_SQL"></include>
+		WHERE
+			item.item_name LIKE '%'||#{0}||'%'
+	</select>
+
+	<insert id="insert" parameterType="item">
+		INSERT INTO
+			item
+			(
+				item_type_id,
+				item_name,
+				text,
+				model_file_name
+			)
+		VALUES
+			(
+				#{itemType.itemTypeId},
+				#{itemName},
+				#{text},
+				#{modelFileName}
+			)
+		<selectKey resultType="int" keyProperty="itemId" order="AFTER">
+			SELECT seq_item_id.currval FROM dual
+		</selectKey>
+	</insert>
+	
+	<insert id="insertRefSite" parameterType="item">
+		<foreach collection="refSiteSet" item="site" index="index"  open="INSERT ALL " separator=" " close="SELECT * FROM DUAL" > 
+		INTO
+			ref_site
+			(
+				url
+				, text
+				, item_id
+			)
+		VALUES
+			(
+				#{site.url}
+				<if test="site.text == null">
+					, ''
+				</if>
+				<if test="site.text != null">
+					, #{site.text}
+				</if>
+				, #{site.itemId}
+			)
+		</foreach>
+	</insert>
+	
+	<update id="update" parameterType="item">
+		UPDATE
+			item
+		SET
+			item_name = #{itemName}
+			, item_type_id = #{itemType.itemTypeId}
+			, model_file_name = #{modelFileName}
+			, text = #{text}
+			, item_scale = #{itemScale}
+			, item_rotate_x = #{itemRotateX}
+			, item_rotate_y = #{itemRotateY}
+			, item_rotate_z = #{itemRotateZ}
+			, item_x = #{itemX}
+			, item_y = #{itemY}
+			, item_z = #{itemZ}
+		WHERE item_id = #{itemId}
+	</update>
+	
+	<delete id="deleteAllRefSite" parameterType="int">
+		DELETE FROM ref_site
+		WHERE item_id = #{0}
+	</delete>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM item
+		WHERE item_id = #{0}
+	</delete>
+	
+
+	
+	
+<select id="selectitem" parameterType="int" resultMap="itemResultMap">
+		<include refid="SELECT_ITEM_SQL"></include>
+		WHERE
+			ITEM_TYPE_ID=#{itemTypeId}
+	</select>
+	
+
+	<select id="selectAllItemType" resultMap="itemTypeResultMap">
+		SELECT
+			*
+		FROM
+			item_type
+	</select>
+	
+	<update id="updatePreview" parameterType="item">
+		UPDATE item
+		SET
+			item_preview = #{itemPreview}
+		WHERE
+			item_id = #{itemId}
+	</update>
+
+</mapper>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.entry.dao.EntryMapper">
+	<resultMap type="entry" id="EntryResultMap">
+		<result property="creDate"	column="CRE_DATE"/>
+		<result property="price"	column="PRICE"/>
+		<association property="agency" column="ADD_agency_id" javaType="com.real.fudousan.agency.vo.Agency" resultMap="com.real.fudousan.agency.dao.AgencyMapper.agencyResultMap" columnPrefix="ADD_"/>
+		<association property="estate" column="ES_ESTATE_ID" javaType="com.real.fudousan.estate.vo.Estate" resultMap="com.real.fudousan.estate.dao.EstateMapper.estateResultMap" columnPrefix="ES_" />
+	</resultMap>
+
+
+
+	<sql id="SELECT_ENTRY_SQL">
+		SELECT
+			entry.cre_date						CRE_DATE
+			,entry.price						PRICE
+			
+			-- AGENCY
+			,agency.address_main 				ADD_ADDRESS_MAIN
+			,agency.address_middle 				ADD_ADDRESS_MIDDLE
+			,agency.address_small 				ADD_address_small
+			,agency.address_sub 				ADD_address_sub
+			,agency.agency_id					ADD_agency_id
+			,agency.biznum						ADD_biznum
+			,agency.confirm						ADD_confirm
+			,agency.cre_date 					ADD_cre_date
+			,agency.del_date 					ADD_del_date
+			,agency.gps_x 						ADD_gps_x
+			,agency.gps_y 						ADD_gps_y
+			,agency.name						ADD_name
+			,agency.text						ADD_text
+			,agency.member_id 					ADD_member_id
+			
+			-- trans_type
+			,trans_type.trans_type_id 			ADD_trans_type_id
+			,trans_type.trans_name				ADD_trans_name
+			
+			-- member
+			,member.email						ADD_email
+			,member.password					ADD_password
+			,member.phone						ADD_phone
+			,member.picture						ADD_picture
+			,member.text 						ADD_member_text
+			,member.member_name					ADD_member_name
+			,member.cre_date 					ADD_member_cre_date
+			,member.del_date 					ADD_member_del_date
+			,member.designer					ADD_designer
+			
+			-- permission
+			,permission.permission_id			ADD_permission_id
+			,permission.name 					ADD_permission_name
+			
+			-- ESTATE
+			,estate.ESTATE_ID 					ES_ESTATE_ID 
+			,Region								ES_Region
+			,Prefecture							ES_Prefecture
+			,Municipality						ES_Municipality
+			,DistrictName						ES_DistrictName
+			,NearestStation						ES_NearestStation
+			,TimeToNearestStation				ES_TimeToNearestStation
+			,TradePrice							ES_TradePrice
+			,PricePerUnit						ES_PricePerUnit
+			,FloorPlan							ES_FloorPlan
+			,Area								ES_Area
+			,UnitPrice							ES_UnitPrice
+			,LandShape							ES_LandShape
+			,Frontage							ES_Frontage
+			,TotalFloorArea						ES_TotalFloorArea
+			,BuildingYear						ES_BuildingYear
+			,Structure							ES_Structure
+			,Use								ES_Use
+			,Purpose							ES_Purpose
+			,Direction							ES_Direction
+			,Classification						ES_Classification
+			,Breadth							ES_Breadth
+			,CityPlanning						ES_CityPlanning
+			,CoverageRatio						ES_CoverageRatio
+			,FloorAreaRatio						ES_FloorAreaRatio
+			,Period								ES_Period
+			,Renovation							ES_Renovation
+			,Remarks							ES_Remarks
+			,estate.DEL_DATE					ES_estate_DEL_DATE
+			,ESTATE_NAME						ES_ESTATE_NAME
+			,ESTATE_X							ES_ESTATE_X
+			,ESTATE_Y							ES_ESTATE_Y
+			,BASE_ROOM_ID						ES_BASE_ROOM_ID
+			
+			-- MunicipalityCode
+			,estate.MunicipalityCode_ID 		ES_MunicipalityCode_ID
+			
+			-- TRANS_TYPE
+			,estate.TRANS_TYPE_ID 				ES_TRANS_TYPE_ID
+		FROM
+			entry
+		JOIN
+			agency
+		ON
+			entry.agency_id = agency.agency_id
+		JOIN
+			member
+		ON
+			agency.member_id = member.member_id
+		JOIN
+			trans_type
+		ON
+			agency.trans_type_id = trans_type.trans_type_id
+		JOIN
+			permission
+		ON
+			member.permission_id = permission.permission_id
+		JOIN
+			estate
+		ON
+			entry.estate_id = estate.estate_id
+		JOIN
+			MunicipalityCode
+		ON
+			estate.MunicipalityCode_ID = municipalitycode.MunicipalityCode_ID
+		JOIN
+			TRANS_TYPE
+		ON
+			estate.TRANS_TYPE_ID = trans_type.TRANS_TYPE_ID
+	</sql>
+	
+<select id="selectEntry" resultMap="EntryResultMap">
+	<include refid="SELECT_ENTRY_SQL"></include>
+	WHERE
+		agency.agency_id = #{0}
+	AND
+		estate.ESTATE_ID  = #{1}
+</select>
+
+<insert id="insertEntry"  parameterType="Entry">
+insert into entry
+(
+AGENCY_ID
+,ESTATE_ID
+,PRICE
+)VALUES(
+#{agency.agencyId}
+,#{estate.estateId}
+,#{price}
+)
+</insert>
+
+<select id="listEntry" resultMap="EntryResultMap">
+select 
+	price
+from 
+	entry
+where
+ESTATE_ID =#{estate.estateId}
+
+</select>
+
+
+
+<update id="updateByIds" parameterType="Entry">
+update
+entry
+set
+price=#{price}
+where
+ESTATE_ID =#{estate.estateId}
+
+
+
+</update>
+<delete id="deleteEntry" parameterType="entry">
+delete
+from Entry
+where ESTATE_ID =#{estate.estateId} and AGENCY_ID =#{agency.agencyId}
+
+</delete>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.member.dao.MemberMapper">
+	<resultMap type="member" id="memberResultMap">
+		<id property="memberId" column="member_id"/>
+		<result property="creDate" column="member_cre_date"/>
+		<result property="delDate" column="member_del_date"/>
+		<result property="designer" column="designer"/>
+		<result property="email" column="email"/>
+		<result property="password" column="password"/>
+		<result property="phone" column="phone"/>
+		<result property="picture" column="picture"/>
+		<result property="text" column="member_text"/>
+		<result property="memberName" column="member_name"/>
+		<!-- Permission -->
+		<association property="permission" column="permission_id" javaType="com.real.fudousan.member.vo.Permission" resultMap="permissionResultMap"/>
+	</resultMap>
+	
+	<resultMap type="permission" id="permissionResultMap">
+		<id property="permissionId" column="permission_id"/>
+		<result property="name" column="permission_name"/>
+	</resultMap>
+	
+	<select id="getOneMember" resultType="member" parameterType="string">
+	select
+		*
+	from
+		member
+	where
+		email = #{email}
+	</select>
+	
+	<select id="interior" resultType="member">
+	select
+	*
+	from
+		member
+	where
+		permission_id=2
+	</select>
+	
+	
+	<select id="selectMember" parameterType="member" resultMap="memberResultMap">
+		SELECT
+			member_id,
+			email,
+			password,
+			phone,
+			picture,
+			text as "member_text",
+			cre_date as "member_cre_date",
+			del_date as "member_del_date",
+			designer,
+			member_name,
+			permission.permission_id as "permission_id",
+			permission.name as "permission_name"
+		FROM
+			member 
+		JOIN 
+			permission
+		ON
+			member.permission_id = permission.permission_id
+		<where>
+			<if test="email != null">
+				email=#{email} 
+			</if>
+			<if test="phone != null">
+				phone=#{phone}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertMember" parameterType="member">
+		INSERT INTO member
+		(
+			email
+			,password
+			,phone
+			,picture
+			,text
+			,permission_id
+			,designer
+			,member_name	
+		
+		)
+		VALUES
+		(
+			#{email}
+			,#{password}
+			,#{phone}
+			,#{picture}
+			,#{text}
+			,#{permission.permissionId}
+			,#{designer}
+			,#{memberName}
+		
+		)
+	
+	</insert>
+	
+	<insert id="insertAgencyMember" parameterType="member" >
+		INSERT INTO member
+		(
+			
+			email
+			,password
+			,phone
+			,picture
+			,text
+			,permission_id
+			,designer
+			,member_name	
+		
+		)
+		VALUES
+		(
+			#{email}
+			,#{password}
+			,#{phone}
+			,#{picture}
+			,#{text}
+			,#{permission.permissionId}
+			,#{designer}
+			,#{memberName}
+		
+		)
+ 	    <selectKey keyProperty="memberId" resultType="int" order="AFTER">
+	        SELECT SEQ_Member_ID.currval AS memberId FROM dual
+	    </selectKey>
+
+
+	</insert>
+	
+	<insert id="insertAgency"  parameterType="agency">
+	INSERT INTO 
+		 agency
+		(	
+			agency_id
+			,member_id
+			,name 
+			,biznum
+			,address_main
+			,address_middle
+			,address_small
+			,address_sub
+			,text
+			,trans_type_id
+			,confirm
+			,gps_x
+			,gps_y
+		)
+		VALUES
+		(	
+			SEQ_AGENCY_ID.nextval
+			,#{member.memberId}
+			,#{name}
+			,#{biznum}
+			,#{addressMain}
+			,#{addressMiddle}
+			,#{addressSmall}
+			,#{addressSub}
+			,#{text}
+			,#{transType.transTypeId}
+			,#{confirm}
+			,#{gpsX}
+			,#{gpsY}
+		)
+	</insert> 
+	
+	<update id="updateMember"  parameterType="member">
+		UPDATE 
+			member
+		SET
+			password = #{password}
+			,phone = #{phone}
+			,picture = #{picture}
+			,text = #{text}
+			,permission_id = #{permission.permissionId}
+			,designer = #{designer}
+			,member_name = #{memberName}	 
+		WHERE
+			email=#{email}
+			
+	</update>
+	
+	<update id="updateAgencyMember"  parameterType="member">
+		UPDATE 
+			member
+		SET
+			password = #{password}
+			,phone = #{phone}
+			,picture = #{picture}
+			,text = #{text}
+			,permission_id = #{permission.permissionId}
+			,designer = #{designer}
+			,member_name = #{memberName}	 
+		WHERE
+			email=#{email}			
+	</update>
+	
+	<update id="updateAgency"  parameterType="agency">
+		UPDATE 
+			agency
+		SET
+			name = #{name}
+			,biznum =#{biznum}
+			,address_main = #{addressMain}
+			,address_middle = #{addressMiddle}
+			,address_small = #{addressSmall}
+			,address_sub = #{addressSub}
+			,text = #{text}
+			,trans_type_id = #{transType.transTypeId}
+			,confirm = #{confirm}
+			,gps_x = #{gpsX}
+			,gps_y = #{gpsY}
+		WHERE
+			member_id=#{member.memberId}		
+				
+	</update>
+	
+	<select id="selectMemberOne" parameterType="member" resultMap="memberResultMap">
+		SELECT 
+			member_id,
+			email,
+			password,
+			phone,
+			picture,
+			text as "member_text",
+			designer,
+			member_name
+		FROM 
+			member
+		WHERE
+			email=#{email}
+		
+		
+	</select>
+	
+	
+	
+</mapper>

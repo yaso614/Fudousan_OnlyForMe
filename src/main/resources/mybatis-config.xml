@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- <typeAliases>
+		<typeAlias type="com.scmaster.web5.customer.vo.Customer" alias="customer" />
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="mapper/customerMapper.xml" />
+	</mappers> -->
+	
+	<typeAliases>
+		<typeAlias type="com.real.fudousan.advice.vo.Advice" alias="advice"/>
+		<typeAlias type="com.real.fudousan.agency.vo.Agency" alias="agency"/>
+		<typeAlias type="com.real.fudousan.entry.vo.Entry" alias="entry"/>
+		<typeAlias type="com.real.fudousan.estate.vo.Estate" alias="estate"/>
+		<typeAlias type="com.real.fudousan.estate.vo.TransType" alias="transtype"/>
+		<typeAlias type="com.real.fudousan.estate.vo.MunicipalityCode" alias="municipalitycode"/>
+		<typeAlias type="com.real.fudousan.favorite.vo.Favorite" alias="favorite"/>
+		
+		<typeAlias type="com.real.fudousan.item.vo.Item" alias="item"/>
+		<typeAlias type="com.real.fudousan.item.vo.ItemType" alias="itemtype"/>
+		<typeAlias type="com.real.fudousan.item.vo.RefSite" alias="refsite"/>
+		
+		<typeAlias type="com.real.fudousan.member.vo.Member" alias="member"/>
+		<typeAlias type="com.real.fudousan.member.vo.Permission" alias="permission"/>
+		
+		<typeAlias type="com.real.fudousan.memberfile.vo.MemberFile" alias="memberfile"/>
+		
+		<typeAlias type="com.real.fudousan.reply.vo.Reply" alias="reply"/>
+		
+		<typeAlias type="com.real.fudousan.room.vo.Room" alias="room"/>
+		
+		<typeAlias type="com.real.fudousan.roomitem.vo.RoomItem" alias="roomitem"/>
+		
+		<typeAlias type="com.real.fudousan.roomwall.vo.RoomWall" alias="roomwall"/>
+		<typeAlias type="com.real.fudousan.roomwall.vo.RoomWallConnector" alias="roomwallconnector"/>
+		
+		<typeAlias type="com.real.fudousan.texture.vo.Texture" alias="texture"/>
+		<typeAlias type="com.real.fudousan.texture.vo.TextureType" alias="texturetype"/>
+	</typeAliases>
+	
+	<mappers>
+		<mapper resource="mapper/adviceMapper.xml" />
+		<mapper resource="mapper/agencyMapper.xml" />
+		<mapper resource="mapper/entryMapper.xml" />
+		<mapper resource="mapper/estateMapper.xml" />
+		<mapper resource="mapper/favoriteMapper.xml" />
+		<mapper resource="mapper/itemMapper.xml" />
+		<mapper resource="mapper/memberfileMapper.xml" />
+		<mapper resource="mapper/memberMapper.xml" />
+		<mapper resource="mapper/replyMapper.xml" />
+		<mapper resource="mapper/roomItemMapper.xml" />
+		<mapper resource="mapper/roomMapper.xml" />
+		<mapper resource="mapper/roomWallMapper.xml" />
+		<mapper resource="mapper/textureMapper.xml" />
+	</mappers>
+</configuration>

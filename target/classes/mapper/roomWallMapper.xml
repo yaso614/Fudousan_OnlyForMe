@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.roomwall.dao.RoomWallMapper">
+	<resultMap type="roomwall" id="RoomWallResultMap">
+		<id 			property="roomId" 				column="ROOM_ID"/>
+		<id 											column="C1_CONNECTOR_ID"/>
+		<id 							 				column="C2_CONNECTOR_ID"/>
+		<result 		property="type" 				column="TYPE"/>
+		<result 		property="roomWallId" 			column="ROOM_WALL_ID"/>
+		<association 	property="backTexture" 			column="BACK_TEXTURE_ID" 	javaType="com.real.fudousan.texture.vo.Texture" 			resultMap="com.real.fudousan.texture.dao.TextureMapper.textureResultMap" 	columnPrefix="BACK_"/>
+		<association 	property="frontTexture" 		column="FRONT_TEXTURE_ID" 	javaType="com.real.fudousan.texture.vo.Texture" 			resultMap="com.real.fudousan.texture.dao.TextureMapper.textureResultMap" 	columnPrefix="FRONT_"/>
+		<association 	property="roomWallConnector1" 	column="C1_CONNECTOR_ID" 		javaType="com.real.fudousan.roomwall.vo.RoomWallConnector" 	resultMap="RoomWallConnectorResultMap" 										columnPrefix="C1_"/>
+		<association 	property="roomWallConnector2" 	column="C2_CONNECTOR_ID" 		javaType="com.real.fudousan.roomwall.vo.RoomWallConnector" 	resultMap="RoomWallConnectorResultMap" 										columnPrefix="C2_"/>
+	</resultMap>
+	
+	<resultMap type="roomwallconnector" id="RoomWallConnectorResultMap">
+		<id 	property="connectorId" 	column="CONNECTOR_ID"/>
+		<result property="x" 			column="X"/>
+		<result property="y" 			column="Y"/>
+	</resultMap>
+	
+	<sql id="SELECT_ROOM_WALL">
+		SELECT
+			-- ROOM_WALL
+			ROOM_WALL.ROOM_WALL_ID				ROOM_WALL_ID
+			,ROOM_WALL.ROOM_ID 					ROOM_ID
+			,ROOM_WALL.TYPE 					TYPE
+			
+			-- BACK_TEXUTRE
+			,BACK_TEXTURE.TEXTURE_ID 			BACK_TEXTURE_ID
+			,BACK_TEXTURE.MEMBER_ID 			BACK_MEMBER_ID
+			,BACK_TEXTURE.TEXTURE_NAME 			BACK_TEXTURE_NAME
+			,BACK_TEXTURE.TEXT 					BACK_TEXT
+			,BACK_TEXTURE.TEXTURE_FILE 			BACK_TEXTURE_FILE
+			,BACK_TEXTURE.CRE_DATE 				BACK_CRE_DATE
+			,BACK_TEXTURE.DEL_DATE 				BACK_DEL_DATE
+			
+			-- BACK_TEXUTRE_TYPE
+			,BACK_TEXTURE_TYPE.TEXTURE_TYPE_ID 	BACK_TEXTURE_TYPE_ID
+			,BACK_TEXTURE_TYPE.NAME 			BACK_NAME
+			,BACK_TEXTURE_TYPE.TEXT 			BACK_TEXT
+			
+			-- FRONT_TEXUTRE
+			,FRONT_TEXTURE.TEXTURE_ID 			FRONT_TEXTURE_ID
+			,FRONT_TEXTURE.MEMBER_ID 			FRONT_MEMBER_ID
+			,FRONT_TEXTURE.TEXTURE_NAME 		FRONT_TEXTURE_NAME
+			,FRONT_TEXTURE.TEXT 				FRONT_TEXT
+			,FRONT_TEXTURE.TEXTURE_FILE 		FRONT_TEXTURE_FILE
+			,FRONT_TEXTURE.CRE_DATE 			FRONT_CRE_DATE
+			,FRONT_TEXTURE.DEL_DATE 			FRONT_DEL_DATE
+			
+			-- FRONT_TEXUTRE_TYPE
+			,FRONT_TEXTURE_TYPE.TEXTURE_TYPE_ID FRONT_TEXTURE_TYPE_ID
+			,FRONT_TEXTURE_TYPE.NAME 			FRONT_NAME
+			,FRONT_TEXTURE_TYPE.TEXT 			FRONT_TEXT
+			
+			-- ROOM_WALL_CONNECTOR_1
+			,ROOM_WALL_CONNECTOR_1.CONNECTOR_ID C1_CONNECTOR_ID
+			,ROOM_WALL_CONNECTOR_1.X 			C1_X
+			,ROOM_WALL_CONNECTOR_1.Y 			C1_Y
+			
+			-- ROOM_WALL_CONNECTOR_2
+			,ROOM_WALL_CONNECTOR_2.CONNECTOR_ID C2_CONNECTOR_ID
+			,ROOM_WALL_CONNECTOR_2.X 			C2_X
+			,ROOM_WALL_CONNECTOR_2.Y 			C2_Y
+			
+		FROM
+			ROOM_WALL
+			
+		-- BACK_TEXTURE
+		LEFT OUTER JOIN
+			TEXTURE 							BACK_TEXTURE
+		ON
+			ROOM_WALL.BACK_TEXTURE_ID = BACK_TEXTURE.TEXTURE_ID
+		LEFT OUTER JOIN
+			TEXTURE_TYPE 						BACK_TEXTURE_TYPE
+		ON
+			BACK_TEXTURE.TEXTURE_TYPE_ID = BACK_TEXTURE_TYPE.TEXTURE_TYPE_ID
+			
+		-- FRONT_TEXTURE
+		LEFT OUTER JOIN
+			TEXTURE 							FRONT_TEXTURE
+		ON
+			ROOM_WALL.FRONT_TEXTURE_ID = FRONT_TEXTURE.TEXTURE_ID
+		LEFT OUTER JOIN
+			TEXTURE_TYPE 						FRONT_TEXTURE_TYPE
+		ON
+			FRONT_TEXTURE_TYPE.TEXTURE_TYPE_ID = FRONT_TEXTURE_TYPE.TEXTURE_TYPE_ID
+			
+		-- ROOM_WALL_CONNECTOR_1
+		JOIN
+			ROOM_WALL_CONNECTOR 				ROOM_WALL_CONNECTOR_1
+		ON
+			ROOM_WALL.CONNECTOR_ID1 = ROOM_WALL_CONNECTOR_1.CONNECTOR_ID
+		
+		-- ROOM_WALL_CONNECTOR_2
+		JOIN
+			ROOM_WALL_CONNECTOR 				ROOM_WALL_CONNECTOR_2
+		ON
+			ROOM_WALL.CONNECTOR_ID2 = ROOM_WALL_CONNECTOR_2.CONNECTOR_ID
+	</sql>
+
+<select id="selectAllRoomWallByRoomId" parameterType="int" resultMap="RoomWallResultMap">
+	<include refid="SELECT_ROOM_WALL"></include>
+	WHERE
+		room_id = #{0}
+</select>
+
+<insert id="insertWall" parameterType="roomWall">
+	INSERT INTO room_wall
+		(
+			ROOM_ID
+			,CONNECTOR_ID1
+			,CONNECTOR_ID2
+			,TYPE
+			<if test="frontTexture != null">
+			,FRONT_TEXTURE_ID
+			</if>
+			<if test="backTexture != null">
+			,BACK_TEXTURE_ID
+			</if>
+		)
+	VALUES
+		(
+			#{roomId}
+			,#{roomWallConnector1.connectorId}
+			,#{roomWallConnector2.connectorId}
+			,#{type}
+			<if test="frontTexture != null">
+			,#{frontTexture.textureId}
+			</if>
+			<if test="backTexture != null">
+			,#{backTexture.textureId}
+			</if>
+		)
+</insert>
+
+<insert id="insertConnector" parameterType="roomWall">
+	INSERT INTO room_wall_connector
+		(
+			X
+			,Y
+		)
+	VALUES
+		(
+			#{x}
+			,#{y}
+		)
+	<selectKey keyProperty="connectorId" resultType="int" order="AFTER">
+		SELECT SEQ_WALL_CONNECTOR_ID.currval
+		FROM dual
+	</selectKey>
+</insert>
+
+<delete id="deleteWallsByRoomId" parameterType="int">
+	DELETE FROM room_wall_connector
+	WHERE connector_id IN (SELECT DISTINCT connector_id1 FROM room_wall WHERE room_id = #{0} UNION SELECT DISTINCT connector_id2 FROM room_wall WHERE room_id = #{0})
+</delete>
+
+<update id="updateFrontTexture">
+	UPDATE
+		room_wall
+	SET
+		FRONT_TEXTURE_ID = #{1}
+	WHERE
+		room_wall_id = #{0}
+</update>
+
+<update id="updateBackTexture">
+	UPDATE
+		room_wall
+	SET
+		BACK_TEXTURE_ID = #{1}
+	WHERE
+		room_wall_id = #{0}
+</update>
+</mapper>

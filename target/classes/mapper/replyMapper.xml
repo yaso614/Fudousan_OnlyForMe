@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.reply.dao.ReplyMapper">
+	<resultMap type="reply" id="replyResultMap">
+		<id property="replyId" column="reply_id"/>
+		<result property="estateId" column="estate_id"/>
+		<result property="text" column="text"/>
+		<result property="creDate" column="cre_date"/>
+		<!-- Member -->
+		<association property="member" column="member_id" javaType="com.real.fudousan.member.vo.Member" resultMap="com.real.fudousan.member.dao.MemberMapper.memberResultMap"/>
+	</resultMap>
+	
+	<sql id="SELECT_REPLY_SQL">
+		SELECT
+			reply.reply_id as reply_id,
+			reply.estate_id as estate_id,
+			reply.text as text,	
+			reply.cre_date as cre_date,
+			member.member_id as member_id,
+			member.email as email,
+			member.password as password,
+			member.phone as phone,
+			member.picture as picture,
+			member.text as "member_text",
+			member.cre_date as "member_cre_date",
+			del_date as "member_del_date",
+			member.designer as designer,
+			member.member_name as member_name,
+			permission.permission_id as "permission_id",
+			permission.name as "permission_name"
+		FROM
+			reply
+		JOIN
+			member
+		ON 
+			reply.member_id = member.member_id
+		JOIN 
+			permission
+		ON
+			member.permission_id = permission.permission_id
+	</sql>
+	
+	
+	<!-- insert -->
+	<insert id="insertReply" parameterType="reply">
+		INSERT INTO reply
+		(
+			estate_id,
+			member_id,
+			text	
+		)
+		VALUES
+		(
+			#{estateId},
+			#{member.memberId},
+			#{text}
+		)
+		
+		 <selectKey keyProperty="replyId" resultType="int" order="AFTER">
+	        SELECT SEQ_Reply_ID.currval AS replyId FROM dual
+	    </selectKey>
+	</insert>
+	
+	<select id="selectReply" resultMap="replyResultMap">
+			SELECT
+			reply.reply_id as reply_id,
+			reply.estate_id as estate_id,
+			reply.text as text,	
+			reply.cre_date as cre_date,
+			member.member_id as member_id,
+			member.email as email,
+			member.password as password,
+			member.phone as phone,
+			member.picture as picture,
+			member.text as "member_text",
+			member.cre_date as "member_cre_date",
+			del_date as "member_del_date",
+			member.designer as designer,
+			member.member_name as member_name,
+			permission.permission_id as "permission_id",
+			permission.name as "permission_name"
+		FROM
+			reply
+		JOIN
+			member
+		ON 
+			reply.member_id = member.member_id
+		JOIN 
+			permission
+		ON
+			member.permission_id = permission.permission_id
+	</select>
+	
+	<delete id="deleteReply" parameterType="Integer">
+		DELETE
+		FROM 
+			reply
+		WHERE
+			reply_id = #{reply_id}
+	</delete>
+	
+	<select id="selectOne" resultMap="replyResultMap">
+		<include refid="SELECT_REPLY_SQL"></include>
+		WHERE
+			reply_id = #{replyId}
+	</select>
+	
+	<select id="selectReplyEstate" parameterType="int" resultMap="replyResultMap">
+		<include refid="SELECT_REPLY_SQL"></include>
+	WHERE
+		estate_id=#{estateId}
+	
+	
+	</select>
+	
+	
+	<update id="updateReply" parameterType="reply">
+		UPDATE 
+			reply	
+		SET
+			text = #{text}	
+		WHERE
+			reply_id = #{replyId}
+
+		
+	</update>
+	
+</mapper>

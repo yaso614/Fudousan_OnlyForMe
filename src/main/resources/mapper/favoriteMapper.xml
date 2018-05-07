@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 쿼리는 DB랑 맞추고  맵은 셀렉트한 쿼리문에 맞춘다. -->
+<mapper namespace="com.real.fudousan.favorite.dao.FavoriteMapper">
+	<resultMap type="favorite" id="FavoriteAll">
+		<result 	 property="memberId" column="MEMBER_ID"/>
+		<result 	 property="creDate"  column="CRE_DATE"/>
+		<association property="estate"   column="EST_ESTATE_ID" javaType="com.real.fudousan.estate.vo.Estate" resultMap="com.real.fudousan.estate.dao.EstateMapper.estateResultMap" columnPrefix="EST_"/>
+	</resultMap>
+	<sql id="SELECT_FAVORITE_SQL">
+		SELECT
+			-- FAVORITE
+			favorite.MEMBER_ID						MEMBER_ID
+			,favorite.CRE_DATE						CRE_DATE
+			
+			-- ESTATE
+			,estate.ESTATE_ID 						EST_ESTATE_ID
+			,estate.Region							EST_Region		
+			,estate.Prefecture						EST_Prefecture
+			,estate.Municipality					EST_Municipality
+			,estate.DistrictName					EST_DistrictName
+			,estate.NearestStation					EST_NearestStation
+			,estate.TimeToNearestStation			EST_TimeToNearestStation
+			,estate.TradePrice						EST_TradePrice
+			,estate.PricePerUnit					EST_PricePerUnit
+			,estate.FloorPlan						EST_FloorPlan
+			,estate.Area							EST_Area
+			,estate.UnitPrice						EST_UnitPrice
+			,estate.LandShape						EST_LandShape
+			,estate.Frontage						EST_Frontage
+			,estate.TotalFloorArea					EST_TotalFloorArea
+			,estate.BuildingYear					EST_BuildingYear
+			,estate.Structure						EST_Structure
+			,estate.Use								EST_Use
+			,estate.Purpose							EST_Purpose
+			,estate.Direction						EST_Direction
+			,estate.Classification					EST_Classification
+			,estate.Breadth							EST_Breadth
+			,estate.CityPlanning					EST_CityPlanning
+			,estate.CoverageRatio					EST_CoverageRatio
+			,estate.FloorAreaRatio					EST_FloorAreaRatio
+			,estate.Period							EST_Period
+			,estate.Renovation						EST_Renovation
+			,estate.Remarks							EST_Remarks
+			,estate.DEL_DATE 						EST_estate_DEL_DATE
+			,estate.ESTATE_NAME						EST_ESTATE_NAME
+			,estate.ADDRESS							EST_ADDRESS
+			,estate.ESTATE_X						EST_ESTATE_X
+			,estate.ESTATE_Y						EST_ESTATE_Y
+			,estate.CRE_DATE						EST_CRE_DATE					
+			,estate.BASE_ROOM_ID					EST_BASE_ROOM_ID
+			
+			-- municipalitycode
+			,municipalitycode.municipalitycode_id 	EST_MunicipalityCode_ID
+			,municipalitycode.code_name				EST_CODE_NAME
+			
+			-- trans_type
+			,trans_type.TRANS_TYPE_ID 				EST_TRANS_TYPE_ID
+			,trans_type.TRANS_NAME					EST_TRANS_NAME
+		FROM
+			favorite
+		JOIN
+			estate
+		ON
+			favorite.ESTATE_ID = estate.ESTATE_ID
+		JOIN
+			municipalitycode
+		ON
+			estate.MunicipalityCode_ID = municipalitycode.MunicipalityCode_ID
+		JOIN
+			trans_type
+		ON
+			estate.TRANS_TYPE_ID = trans_type.TRANS_TYPE_ID
+	</sql>
+
+	<select id="allFavorite" resultMap="FavoriteAll" parameterType="int">
+ 		<include refid="SELECT_FAVORITE_SQL"></include>
+		where
+			
+			MEMBER_ID = #{MEMBER_ID}
+	</select>
+	
+	
+	
+ 	<select id="searchFavorite" resultMap="FavoriteAll" >
+ 		<include refid="SELECT_FAVORITE_SQL"></include>
+		where
+			favorite.MEMBER_ID = #{0} and estate.ESTATE_NAME Like '%'||#{1}||'%'
+	</select>
+	
+	<insert id="add" parameterType="favorite">
+	 INSERT INTO favorite
+	 (
+	 	member_id,
+	 	estate_id		
+	 ) 
+	 VALUES
+	 (
+	 	#{memberId},
+	 	#{estate.estateId}
+	 )
+	</insert>
+	<select id="selectFavorite" resultMap="FavoriteAll">
+ 		<include refid="SELECT_FAVORITE_SQL"></include>
+		WHERE 
+			member_id=#{memberId} AND estate.ESTATE_ID  = #{estate.estateId}
+	</select>
+	
+	<delete id="deleteFavorite" parameterType="favorite">
+		DELETE 
+		FROM 
+			favorite
+		WHERE 
+			estate_id = #{estate.estateId} AND member_id=#{memberId}
+	</delete>
+</mapper>

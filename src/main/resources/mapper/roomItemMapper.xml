@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.roomitem.dao.RoomItemMapper">
+	<resultMap type="roomitem" id="roomItemResultMap">
+		<id 			property="roomItemId"		column="ROOMITEM_ID"/>
+		<result 		property="roomId"			column="ROOM_ID"/>
+		<result 		property="x"				column="X"/>
+		<result 		property="y"				column="Y"/>
+		<result 		property="z"				column="Z"/>
+		<result 		property="rotateX"			column="ROTATE_X"/>
+		<result 		property="rotateY"			column="ROTATE_Y"/>
+		<result 		property="rotateZ"			column="ROTATE_Z"/>
+		<result 		property="color"			column="COLOR"/>
+		<association 	property="item" 			column="ITEM_item_id"			javaType="com.real.fudousan.item.vo.Item"		resultMap="com.real.fudousan.item.dao.ItemMapper.itemResultMap"		columnPrefix="ITEM_"/>
+	</resultMap>
+	
+	<sql id="SELECT_ROOMITEM_SQL">
+		SELECT
+			ROOMITEM.ROOMITEM_ID	ROOMITEM_ID
+			,ROOMITEM.ROOM_ID		ROOM_ID
+			,ROOMITEM.X				X
+			,ROOMITEM.Y				Y
+			,ROOMITEM.Z				Z
+			,ROOMITEM.ROTATE_X		ROTATE_X
+			,ROOMITEM.ROTATE_Y		ROTATE_Y
+			,ROOMITEM.ROTATE_Z		ROTATE_Z
+			,ROOMITEM.COLOR			COLOR
+			
+			-- item
+			,item.item_id 			ITEM_item_id
+			, item_name				ITEM_item_name
+			, item.text 			ITEM_text
+			, file_directory		ITEM_file_directory
+			, model_file_name		ITEM_model_file_name
+			, item_scale			ITEM_item_scale
+			,item_rotate_x			ITEM_item_rotate_x
+			,item_rotate_y			ITEM_item_rotate_y
+			,item_rotate_z			ITEM_item_rotate_z
+			,item_x					ITEM_item_x
+			,item_y					ITEM_item_y
+			,item_z					ITEM_item_z
+			,item_z					ITEM_item_preview
+			
+			-- item_type
+			, item.item_type_id 	ITEM_item_type_id
+			, item_type_name		ITEM_item_type_name
+			
+			-- ref_site
+			, id					ITEM_id
+			, url					ITEM_url
+			, cre_date				ITEM_cre_date
+			, ref_site.text 		ITEM_ref_site_text
+		FROM
+			ROOMITEM
+		JOIN
+			item
+		ON
+			ROOMITEM.ITEM_ID = item.ITEM_ID
+		JOIN
+			item_type
+		ON
+			item.item_type_id = item_type.item_type_id
+		LEFT OUTER JOIN
+			ref_site
+		ON
+			item.item_id = ref_site.item_id
+			
+	</sql>
+
+	<select id="selectByRoomItemId" resultMap="roomItemResultMap">
+		<include refid="SELECT_ROOMITEM_SQL"/>
+		WHERE
+			ROOMITEM_ID = #{0}
+	</select>
+	
+	<select id="selectAllByRoomId" resultMap="roomItemResultMap">
+		<include refid="SELECT_ROOMITEM_SQL"/>
+		WHERE
+			ROOM_ID = #{0}
+	</select>
+
+	<insert id="insert" parameterType="roomitem">
+		INSERT INTO
+			roomitem
+			(
+				room_id
+				,item_id
+				<if test="x != null">
+				,x
+				</if>
+				<if test="y != null">
+				,y
+				</if>
+				<if test="z != null">
+				,z
+				</if>
+				<if test="rotateX != null">
+				,rotate_x
+				</if>
+				<if test="rotateY != null">
+				,rotate_y
+				</if>
+				<if test="rotateZ != null">
+				,rotate_z
+				</if>
+				<if test="color != null">
+				,color
+				</if>
+			)
+		VALUES
+			(
+				#{roomId}
+				,#{item.itemId}
+				<if test="x != null">
+				,#{x}
+				</if>
+				<if test="y != null">
+				,#{y}
+				</if>
+				<if test="z != null">
+				,#{z}
+				</if>
+				<if test="rotateX != null">
+				,#{rotateX}
+				</if>
+				<if test="rotateY != null">
+				,#{rotateY}
+				</if>
+				<if test="rotateZ != null">
+				,#{rotateZ}
+				</if>
+				<if test="color != null">
+				,#{color}
+				</if>
+			)
+		<selectKey keyProperty="roomItemId" order="AFTER" resultType="int">
+			SELECT seq_roomitem_id.currval
+			FROM dual
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="roomitem">
+		UPDATE
+			roomitem
+		<set>
+			<if test="x != null">
+			x = #{x},
+			</if>
+			<if test="y != null">
+			y = #{y},
+			</if>
+			<if test="z != null">
+			z = #{z},
+			</if>
+			<if test="rotateX != null">
+			rotate_x = #{rotateX},
+			</if>
+			<if test="rotateY != null">
+			rotate_y = #{rotateY},
+			</if>
+			<if test="rotateZ != null">
+			rotate_z = #{rotateZ},
+			</if>
+			<if test="color != null">
+			color = #{color}
+			</if>
+		</set>
+		WHERE
+			roomitem_id = #{roomItemId}
+	</update>
+	
+	<delete id="delete" parameterType="int">
+		DELETE FROM roomitem WHERE roomitem_id = #{0}
+	</delete>
+	
+	<delete id="deleteAll">
+		DELETE FROM roomitem WHERE room_id = #{1} AND 1 IN (SELECT DISTINCT 1 FROM room WHERE member_id = #{0})
+	</delete>
+</mapper>

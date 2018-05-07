@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.real.fudousan.texture.dao.TextureMapper">
+
+<sql id="SELECT_TEXTURE_SQL">
+	SELECT
+		-- texture
+		TEXTURE_ID
+		,MEMBER_ID
+		,TEXTURE_NAME
+		,texture.TEXT					TEXT
+		,TEXTURE_FILE
+		,CRE_DATE
+		,DEL_DATE
+		
+		-- texture_type
+		,texture_type.TEXTURE_TYPE_ID	TYPE_TEXTURE_TYPE_ID
+		,texture_type.NAME				TYPE_NAME
+		,texture_type.TEXT				TYPE_TEXT
+	FROM
+		texture
+	LEFT OUTER JOIN
+		texture_type
+	ON
+		texture.texture_type_id = texture_type.texture_type_id
+</sql>
+
+<insert id="textureuproad" parameterType="texture">
+
+insert into texture
+(
+TEXTURE_ID
+,MEMBER_ID
+,TEXTURE_NAME
+,TEXT
+,TEXTURE_FILE
+) values(
+SEQ_TEXTURE_ID.nextval
+,#{memberId}
+,#{name}
+,#{text}
+,#{file}
+)
+
+
+
+</insert>
+
+<select id="selectAllTexture" resultMap="textureResultMap">
+	<include refid="SELECT_TEXTURE_SQL"></include>
+</select>
+
+
+	<resultMap type="texture" id="textureResultMap">
+		<id 	property="textureId" 		column="TEXTURE_ID"/>
+		<result property="memberId"  		column="MEMBER_ID"/>
+		<result property="name"   			column="TEXTURE_NAME"/>
+		<result property="text"   			column="TEXT"/>
+		<result property="file"   			column="TEXTURE_FILE"/>
+		<result property="creDate"   		column="CRE_DATE"/>
+		<result property="delDate"   		column="DEL_DATE"/>
+		<association property="textureType" column="TEXTURE_TYPE_ID" javaType="com.real.fudousan.texture.vo.TextureType" resultMap="textureTypeResultMap" columnPrefix="TYPE_"/>
+	</resultMap>
+	
+	<resultMap type="texturetype" id="textureTypeResultMap">
+		<id		property="textureTypeId"	column="TEXTURE_TYPE_ID"/>
+		<result	property="name"				column="NAME"/>
+		<result	property="text"				column="TEXT"/>
+	</resultMap>
+</mapper>

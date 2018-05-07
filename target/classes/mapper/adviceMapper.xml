@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.real.fudousan.advice.dao.AdviceMapper">
+
+	<resultMap type="advice" id="adviceResultMapper">
+		<result property="requestMemberId" column="REQUEST_MEMBER_ID"/>
+		<result property="requestedMemberId" column="REQUESTED_MEMBER_ID"/>
+		<result property="creDate" column="ADVICE_CRE_DATE"/>
+		<result property="requestDate" column="REQUEST_DATE"/>
+		<result property="state" column="STATE"/>
+		<result property="id" column="ADVICE_ID"/>
+		<association property="room" column="room_id" javaType="com.real.fudousan.room.vo.Room" resultMap="com.real.fudousan.room.dao.RoomMapper.roomResultMap"/>
+	</resultMap>
+	
+	<sql id="SELECT_ADVICE_SQL">
+	select
+			-- ADIVCE
+			advice.REQUEST_MEMBER_ID REQUEST_MEMBER_ID
+			,advice.REQUESTED_MEMBER_ID REQUESTED_MEMBER_ID
+			,advice.CRE_DATE ADVICE_CRE_DATE
+			,advice.ID ADVICE_ID
+			,advice.REQUEST_DATE REQUEST_DATE
+			,advice.STATE state
+			-- ROOM
+			,room.ROOM_ID ROOM_ID
+			,SNAPSHOT
+			,MAP
+			,ROOM.CRE_DATE CRE_DATE
+			,ROOM.DEL_DATE DEL_DATE
+			,HEIGHT
+			,FLOOR_TEXTURE_ID
+			,CEILING_TEXTURE_ID
+			,MEMBER_ID
+			,ROOM.ESTATE_ID ESTATE_ID 
+			,Region
+			,Prefecture
+			,Municipality
+			,DistrictName
+			,NearestStation
+			,TimeToNearestStation
+			,TradePrice
+			,PricePerUnit
+			,FloorPlan
+			,Area
+			,UnitPrice
+			,LandShape
+			,Frontage
+			,TotalFloorArea
+			,BuildingYear
+			,Structure
+			,Use
+			,Purpose
+			,Direction
+			,Classification
+			,Breadth
+			,CityPlanning
+			,CoverageRatio
+			,FloorAreaRatio
+			,Period
+			,Renovation
+			,Remarks
+			,ROOM_PUBLIC
+			,ROOM_TITLE
+			,estate.DEL_DATE estate_DEL_DATE
+			,estate.MunicipalityCode_ID MunicipalityCode_ID
+			,estate.TRANS_TYPE_ID TRANS_TYPE_ID
+			,f.TEXTURE_ID f_TEXTURE_ID
+			,f.TEXTURE_TYPE_ID f_TEXTURE_TYPE_ID
+			,f.MEMBER_ID f_MEMBER_ID
+			,f.TEXTURE_NAME f_TEXTURE_NAME
+			,f.TEXT f_TEXT
+			,f.TEXTURE_FILE f_TEXTURE_FILE
+			,f.CRE_DATE f_CRE_DATE
+			,f.DEL_DATE f_DEL_DATE
+			,c.TEXTURE_ID c_TEXTURE_ID
+			,c.TEXTURE_TYPE_ID c_TEXTURE_TYPE_ID
+			,c.MEMBER_ID c_MEMBER_ID
+			,c.TEXTURE_NAME c_TEXTURE_NAME
+			,c.TEXT c_TEXT
+			,c.TEXTURE_FILE c_TEXTURE_FILE
+			,c.CRE_DATE c_CRE_DATE
+			,c.DEL_DATE c_DEL_DATE
+			,tf.NAME f_NAME
+			,tf.TEXT f_TEXT
+			,cf.NAME c_NAME
+			,cf.TEXT c_TEXT
+			,ESTATE_NAME
+			,ESTATE_X
+			,ESTATE_Y
+		from
+			advice
+		join
+			room
+		on
+			advice.room_id = room.room_id
+		left outer join
+			TEXTURE f
+		on
+			room.FLOOR_TEXTURE_ID = f.TEXTURE_ID
+		left outer join
+			TEXTURE c
+		on
+			room.CEILING_TEXTURE_ID = c.TEXTURE_ID
+		left outer join
+			TEXTURE_TYPE tf
+		on
+			f.TEXTURE_TYPE_ID = tf.TEXTURE_TYPE_ID
+		left outer join
+			TEXTURE_TYPE cf
+		on
+			c.TEXTURE_TYPE_ID = cf.TEXTURE_TYPE_ID
+		left outer join
+			ESTATE
+		on
+			room.ESTATE_ID = estate.ESTATE_ID
+		left outer join
+			MunicipalityCode
+		on
+			estate.MunicipalityCode_ID = municipalitycode.MunicipalityCode_ID
+		left outer join
+			TRANS_TYPE
+		on
+			estate.TRANS_TYPE_ID = trans_type.TRANS_TYPE_ID
+	</sql>
+
+	<select id="selectByIdAndStatus" resultMap="adviceResultMapper" parameterType="int">
+		<include refid="SELECT_ADVICE_SQL"></include>
+		where REQUEST_MEMBER_ID = #{0} and STATE = #{1}
+	</select>
+
+	<select id="reverseCall" resultMap="adviceResultMapper" parameterType="int">
+		<include refid="SELECT_ADVICE_SQL"></include>
+		where REQUESTED_MEMBER_ID = #{requestedMemberId} and STATE = 0
+	</select>
+	
+	<update id="cancleAdvice" parameterType="advice">
+		update
+			advice
+		set 
+			state = 2
+		where
+			REQUEST_MEMBER_ID = #{requestMemberId} and REQUESTED_MEMBER_ID = #{requestedMemberId} and room_id = #{room.roomId}
+	</update>
+	
+	<update id="updateState" parameterType="advice">
+		UPDATE
+			advice
+		SET 
+			state = #{state}
+		WHERE
+			request_member_id = #{requestMemberId} AND requested_member_id = #{requestedMemberId} AND room_id = #{room.roomId}
+	</update>
+	
+	<insert id="addviceRequest" parameterType="advice">
+		insert into advice
+		(
+			REQUEST_MEMBER_ID, 		
+			REQUESTED_MEMBER_ID, 	
+			room_id,
+			id,					
+			STATE 					
+		)VALUES(
+		#{requestMemberId}
+		,#{requestedMemberId}
+		,#{room.roomId}
+		,#{id}
+		,#{state}
+		)
+	</insert>
+	
+</mapper>

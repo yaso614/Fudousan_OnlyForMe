@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.real.fudousan.agency.dao.AgencyMapper">
+
+	<resultMap type="agency" id="agencyResultMap">
+		<id property="agencyId" column="agency_id"/>
+		<result property="addressMain" column="address_main"/>
+		<result property="addressMiddle" column="address_middle"/>
+		<result property="addressSmall" column="address_small"/>
+		<result property="addressSub" column="address_sub"/>
+		<result property="biznum" column="biznum"/>
+		<result property="confirm" column="confirm"/>
+		<result property="creDate" column="cre_date"/>
+		<result property="delDate" column="del_date"/>
+		<result property="gpsX" column="gps_x"/>
+		<result property="gpsY" column="gps_y"/>
+		<result property="name" column="name"/>
+		<result property="text" column="text"/>
+		<association property="transType" column="trans_type_id" javaType="com.real.fudousan.estate.vo.TransType" resultMap="transtypeResultMap"/>
+		<association property="member" column="member_id" javaType="com.real.fudousan.member.vo.Member" resultMap="com.real.fudousan.member.dao.MemberMapper.memberResultMap"/>
+	</resultMap>
+	
+	<resultMap type="transtype" id="transtypeResultMap">
+		<id property="transTypeId" column="trans_type_id"/>
+		<result property="transName" column="trans_name"/>
+	</resultMap>
+	
+	<sql id="SELECT_AGENCY_SQL">
+		SELECT 
+			address_main 
+			, address_middle 
+			, address_small 
+			, address_sub 
+			, agency_id
+			, biznum
+			, confirm
+			, agency.cre_date cre_date
+			, agency.del_date del_date
+			, gps_x 
+			, gps_y 
+			, agency.name name
+			, agency.text text
+			, agency.trans_type_id trans_type_id
+			, trans_name
+			, agency.member_id member_id
+			, email
+			, password
+			, phone
+			, picture
+			, member.text member_text
+			, member_name
+			, member.cre_date member_cre_date
+			, member.del_date member_del_date
+			, designer
+			, permission.permission_id
+			, permission.name permission_name
+		FROM
+			agency
+		JOIN
+			member
+		ON
+			agency.member_id = member.member_id
+		JOIN
+			trans_type
+		ON
+			agency.trans_type_id = trans_type.trans_type_id
+		JOIN
+			permission
+		ON
+			member.permission_id = permission.permission_id
+	</sql>
+
+	<select id="selectByMemberId" resultMap="agencyResultMap">
+		<include refid="SELECT_AGENCY_SQL"></include>
+		WHERE agency.member_id = #{0}
+	</select>
+	
+	<select id="selectByConfirmed" parameterType="int" resultMap="agencyResultMap">
+		<include refid="SELECT_AGENCY_SQL"></include>
+		WHERE
+			confirm = #{confirm}
+	</select>
+	
+	<select id="selectAgencyId" parameterType="string" resultType="int">
+		SELECT
+			agency_id
+		FROM
+			agency
+		WHERE
+			member_id = (SELECT member_id FROM member WHERE email = #{email})
+	</select>
+	
+	<select id="selectAgencyOne" parameterType="int" resultMap="agencyResultMap">
+		<include refid="SELECT_AGENCY_SQL"></include>
+		WHERE 
+			agency_id = #{agencyId}
+			
+	</select>
+	
+	
+	
+	<update id="updateConfirm">
+		UPDATE
+			agency
+		SET
+			confirm = #{1}
+		WHERE
+			agency_id = #{0}
+	</update>
+	
+	<!-- 중개업소 출력 쿼리문 -->
+	<select id="agencyLocationPrint" resultMap="agencyResultMap">
+		<include refid="SELECT_AGENCY_SQL"></include>
+	</select>
+	
+</mapper>
